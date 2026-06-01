@@ -178,9 +178,7 @@
                     }
                 });
             });
-            document.getElementById("btn-pausa-global").addEventListener("click", () => {
-                alternarPausa();
-            });
+            
 
             window.addEventListener("keydown", function(e) {
                 const t = e.key.toLowerCase();
@@ -206,7 +204,7 @@
                     e.stopImmediatePropagation();
                     return;
                 }
-                vincularBotonVisual(e.key, false);
+                
             }, true);
 
             function alternarPausa() {
