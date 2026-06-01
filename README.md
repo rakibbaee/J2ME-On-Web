@@ -9,7 +9,7 @@ npx http-server
 ```
 # How to add a game?
 
-By default, there is a game called "game.jar", which is "Real Football 2012" added for experimental purposes. Replace this game with another of your choice, also called "game.jar". Remember that you can modify the "index.html" file according to your preferences. This emulator is compatible and looks for a game.jar file by default; if you wish to add one, you can.
+By default, there is a game called "game.jar", which is "Real Football 2012" added for experimental purposes. Replace this game with another of your choice, also called "game.jar". Remember that you can modify the "index.html" file according to your preferences. This emulator is compatible and looks for a game.jad file by default; if you wish to add one, you can.
 
 # Tools:
 The project was created using CheerpJ, a browser-based virtual machine that can run .jar files and their dependencies. The J2ME-Plus file along with its "SDL" version.
