@@ -69,6 +69,8 @@
             align-items: center;
             justify-content: center;
             transition: all 0.05s ease;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         .btn-cel span {
             font-size: 7px;
@@ -96,17 +98,17 @@
         <div id="contenedor-juego"></div>
 
         <div class="teclado-celular">
-            <div class="btn-cel" data-tecla="1">7 <span></span></div>
+            <div class="btn-cel" data-tecla="7">7 <span></span></div>
             <div class="btn-cel" data-tecla="ArrowUp">8 <span>▲ (Arriba)</span></div>
-            <div class="btn-cel" data-tecla="3">9 <span>def</span></div>
+            <div class="btn-cel" data-tecla="9">9 <span>def</span></div>
             
             <div class="btn-cel" data-tecla="ArrowLeft">4 <span>◀ (Izq)</span></div>
             <div class="btn-cel" data-tecla="Enter">5 <span>OK / OK</span></div>
             <div class="btn-cel" data-tecla="ArrowRight">6 <span>▶ (Der)</span></div>
             
-            <div class="btn-cel" data-tecla="7">1 <span></span></div>
+            <div class="btn-cel" data-tecla="1">1 <span></span></div>
             <div class="btn-cel" data-tecla="ArrowDown">2 <span>▼ (Abajo)</span></div>
-            <div class="btn-cel" data-tecla="9">3 <span></span></div>
+            <div class="btn-cel" data-tecla="3">3 <span></span></div>
             
             <div class="btn-cel" data-tecla="e">* <span>E</span></div>
             <div class="btn-cel" data-tecla="0">0 <span></span></div>
@@ -130,21 +132,7 @@
                 "/app/game/game.jar"
             );
 
-            
-            function simularTeclado(tipoEvento, nombreTecla) {
-                
-                if (window.juegoPausado && nombreTecla !== "p") return;
-
-                const evento = new KeyboardEvent(tipoEvento, {
-                    key: nombreTecla,
-                    keyCode: obtenerKeyCode(nombreTecla),
-                    bubbles: true,
-                    cancelable: true
-                });
-                window.dispatchEvent(evento);
-            }
-
-            
+            // Key code mapping for all supported keys
             function obtenerKeyCode(tecla) {
                 switch(tecla) {
                     case "ArrowUp": return 38;
@@ -152,34 +140,91 @@
                     case "ArrowLeft": return 37;
                     case "ArrowRight": return 39;
                     case "Enter": return 13;
-                    case "x": return 88;
-                    case "c": return 67;
-                    case "v": return 86;
-                    case "p": return 80;
+                    case "1": return 49;
+                    case "2": return 50;
+                    case "3": return 51;
+                    case "7": return 55;
+                    case "8": return 56;
+                    case "9": return 57;
+                    case "0": return 48;
+                    case "e": return 69;
+                    case "r": return 82;
                     default: return 0;
                 }
-            }          
+            }
+
+            // Simulate keyboard event
+            function simularTeclado(tipoEvento, nombreTecla) {
+                if (window.juegoPausado && nombreTecla.toLowerCase() !== "p") return;
+
+                const evento = new KeyboardEvent(tipoEvento, {
+                    key: nombreTecla,
+                    code: nombreTecla === "Enter" ? "Enter" : (nombreTecla.length === 1 ? "Key" + nombreTecla.toUpperCase() : nombreTecla),
+                    keyCode: obtenerKeyCode(nombreTecla),
+                    which: obtenerKeyCode(nombreTecla),
+                    bubbles: true,
+                    cancelable: true
+                });
+                window.dispatchEvent(evento);
+            }
+
+            // Highlight the corresponding button visually
+            function vincularBotonVisual(key, activar) {
+                document.querySelectorAll(".btn-cel").forEach(btn => {
+                    const teclaDestino = btn.getAttribute("data-tecla");
+                    if (teclaDestino === key || teclaDestino === key.toLowerCase()) {
+                        if (activar) {
+                            btn.classList.add("activo");
+                        } else {
+                            btn.classList.remove("activo");
+                        }
+                    }
+                });
+            }
+
+            // Bind mouse events to buttons
             document.querySelectorAll(".btn-cel").forEach(boton => {
                 const teclaDestino = boton.getAttribute("data-tecla");
 
                 boton.addEventListener("mousedown", (e) => {
                     e.preventDefault();
+                    boton.classList.add("activo");
                     simularTeclado("keydown", teclaDestino);
                 });
 
-
                 boton.addEventListener("mouseup", (e) => {
                     e.preventDefault();
+                    boton.classList.remove("activo");
                     simularTeclado("keyup", teclaDestino);
                 });
+
                 boton.addEventListener("mouseleave", (e) => {
+                    boton.classList.remove("activo");
                     if (e.buttons === 1) {
                         simularTeclado("keyup", teclaDestino);
                     }
                 });
-            });
-            
 
+                // Touch events for mobile devices
+                boton.addEventListener("touchstart", (e) => {
+                    e.preventDefault();
+                    boton.classList.add("activo");
+                    simularTeclado("keydown", teclaDestino);
+                }, { passive: false });
+
+                boton.addEventListener("touchend", (e) => {
+                    e.preventDefault();
+                    boton.classList.remove("activo");
+                    simularTeclado("keyup", teclaDestino);
+                }, { passive: false });
+
+                boton.addEventListener("touchcancel", (e) => {
+                    boton.classList.remove("activo");
+                    simularTeclado("keyup", teclaDestino);
+                });
+            });
+
+            // Keyboard event listeners
             window.addEventListener("keydown", function(e) {
                 const t = e.key.toLowerCase();
                 
@@ -204,7 +249,7 @@
                     e.stopImmediatePropagation();
                     return;
                 }
-                
+                vincularBotonVisual(e.key, false);
             }, true);
 
             function alternarPausa() {
